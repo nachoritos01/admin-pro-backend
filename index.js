@@ -20,6 +20,10 @@ app.use(express.json());
 //mongodb+srv://mean_user:rcfkuE1PO2ExKEev@cluster0.rqg2d.mongodb.net/hospitaldb
 dbConnection();
 
+//Directorio publico
+
+app.use( express.static('public'));
+
 
 // Rutas
 app.use('/api/usuarios', require('./routes/usuarios'));
