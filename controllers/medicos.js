@@ -55,14 +55,31 @@ const actualizarMedico = async (req, res = response) => {
 
     // TODO: Validar token y comprobar si es el Medico correcto
 
-    const uid = req.params.id;
-
+    const id = req.params.id;
+    const uid = req.uid;    
 
     try {
 
+        const medico = await Medico.findById(id);
+
+        if (!medico) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No se encontro medico por id'
+            });
+        }
+
+        const cambiosMedico = {
+            ... req.body,
+            usuario: uid
+        };
+
+        const medicoActualizado = await Medico.findByIdAndUpdate(id, cambiosMedico, {new: true});
+
         res.json({
             ok: true,
-            msg: 'actualizar Medico'
+            msg: 'actualizar Medico',
+            medico: medicoActualizado,
         });
 
         
@@ -79,9 +96,20 @@ const actualizarMedico = async (req, res = response) => {
 
 const borrarMedico = async(req, res = response ) => {
 
-    const uid = req.params.id;
+    const id = req.params.id;
 
     try {
+
+        const medico = await Medico.findById(id);
+
+        if (!medico) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No se encontro medico por id'
+            });
+        }
+
+        await Medico.findByIdAndDelete(id);
 
         
         res.json({
