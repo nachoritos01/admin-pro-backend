@@ -6,12 +6,22 @@ const { generarJWT } = require('../helpers/jwt');
 
 
 const getHospitales = async(req, res = response) => {
+    const desde =  Number(req.query.desde) || 0;
 
-    const hospitales = await Hospital.find().populate('usuario', 'nombre img')
+    const [hospitales, total] = await Promise.all(
+        [
+            Hospital.find().populate('usuario', 'nombre img')
+            .skip(desde)
+            .limit(5),
+            Hospital.countDocuments()
+
+        ]
+    );
 
     res.json({
         ok: true,
-        hospitales
+        hospitales,
+        total
     });
 
 }

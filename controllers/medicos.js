@@ -1,21 +1,55 @@
 const { response } = require('express');
-const bcrypt = require('bcryptjs');
 
 const Medico = require('../models/medicos');
 const { generarJWT } = require('../helpers/jwt');
 
 
 const getMedicos = async(req, res = response) => {
+    const desde =  Number(req.query.desde) || 0;
 
-    const medicos = await Medico.find()
-    .populate('usuario', 'nombre img')
-    .populate('hospital', 'nombre img');
+    const [medicos, total] = await Promise.all([
+        Medico.find()
+            .populate('usuario', 'nombre img')
+            .populate('hospital', 'nombre img')
+            .skip(desde)
+            .limit(5),
+            Medico.countDocuments(),
+    ]);
     
     
     res.json({
         ok: true,
-        medicos
+        medicos,
+        total
     });
+    
+}
+
+const getMedicoById = async(req, res = response) => {
+    const id =  req.params.id ;
+    try {
+        
+        const medico = await Medico.findById(id )
+                .populate('usuario', 'nombre img')
+                .populate('hospital', 'nombre img');
+
+        res.json({
+            ok: true,
+            medico
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(404).json({
+            ok: false,
+            msg: 'Medico no encontrado'
+        });
+        
+    }
+
+    
+    
     
 }
 
@@ -136,5 +170,6 @@ module.exports = {
     getMedicos,
     crearMedico,
     actualizarMedico,
-    borrarMedico
+    borrarMedico,
+    getMedicoById
 }
